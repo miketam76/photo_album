@@ -1,0 +1,14 @@
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+.bg-dark { background-color: #0B3D2E !important; }
+.text-light { color: #F6FFF8 !important; }
+
+/* Gallery cards */
+.photo-card { overflow: hidden; border: 1px solid rgba(255,255,255,0.05); }
+.photo-card img { object-fit: cover; height: 180px; width: 100%; display: block; }
+.photo-card .card-body { background: rgba(0,0,0,0.2); }
+.text-truncate { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .photo-card img { height: 140px; }
+}
