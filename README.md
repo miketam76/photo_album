@@ -1,4 +1,4 @@
-# Photo-App (PHP 8.4)
+# Photo Album App (PHP 8.4)
 
 Minimal photo album scaffold for testing (SQLite + Imagick).
 
