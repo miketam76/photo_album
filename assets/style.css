@@ -316,6 +316,13 @@ body {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
+  max-width: 95% !important;
+}
+
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1600px !important;
+  }
 }
 
 .page-panel {
@@ -616,6 +623,31 @@ a:focus-visible {
 .navbar-brand:focus-visible {
   outline: 3px solid var(--focus-outline);
   outline-offset: 2px;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown-item {
+  color: var(--text);
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.dropdown-divider {
+  border-color: var(--border);
+  opacity: 0.5;
 }
 
 .text-truncate {

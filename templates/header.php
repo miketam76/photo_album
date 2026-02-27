@@ -67,52 +67,70 @@ if ($user && isset($user['theme']) && in_array((string)$user['theme'], $allowedT
           </ul>
           <ul class="navbar-nav ms-auto">
             <?php if ($user): ?>
-              <li class="nav-item">
-                <a
-                  class="nav-link nav-icon-link<?= $currentPath === '/settings.php' ? ' active' : '' ?>"
-                  href="/settings.php"
-                  <?= $currentPath === '/settings.php' ? 'aria-current="page"' : '' ?>
-                  aria-label="Settings"
-                  title="Settings">
-                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-                    <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.094.319a1.464 1.464 0 0 1-2.105.872l-.286-.166c-1.27-.736-2.67.665-1.934 1.934l.165.286a1.464 1.464 0 0 1-.872 2.105l-.319.094c-1.4.413-1.4 2.397 0 2.81l.319.094a1.464 1.464 0 0 1 .872 2.105l-.166.286c-.736 1.27.665 2.67 1.934 1.934l.286-.165a1.464 1.464 0 0 1 2.105.872l.094.319c.413 1.4 2.397 1.4 2.81 0l.094-.319a1.464 1.464 0 0 1 2.105-.872l.286.166c1.27.736 2.67-.665 1.934-1.934l-.165-.286a1.464 1.464 0 0 1 .872-2.105l.319-.094c1.4-.413 1.4-2.397 0-2.81l-.319-.094a1.464 1.464 0 0 1-.872-2.105l.166-.286c.736-1.27-.665-2.67-1.934-1.934l-.286.165a1.464 1.464 0 0 1-2.105-.872l-.094-.319ZM8 10.5A2.5 2.5 0 1 1 8 5.5a2.5 2.5 0 0 1 0 5Z" fill="currentColor" />
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="User menu">
+                  <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" fill="currentColor" />
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" fill="currentColor" />
                   </svg>
+                  <span class="small"><?php
+                                      $firstName = trim((string)($user['first_name'] ?? ''));
+                                      $lastName = trim((string)($user['last_name'] ?? ''));
+                                      $displayName = trim($firstName . ' ' . $lastName);
+                                      echo htmlspecialchars($displayName !== '' ? $displayName : 'User');
+                                      ?></span>
                 </a>
-              </li>
-              <li class="nav-item"><span class="nav-link">Hello, <?= htmlspecialchars($user['email'] ?? 'user') ?></span></li>
-              <li class="nav-item">
-                <a class="nav-link nav-icon-link" href="/logout.php" aria-label="Logout" title="Logout">
-                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-                    <path d="M10.146 11.854a.5.5 0 0 0 .708 0l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 1 0-.708.708L12.793 7.5H6.5a.5.5 0 0 0 0 1h6.293l-2.647 2.646a.5.5 0 0 0 0 .708Z" fill="currentColor" />
-                    <path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 0 0-1h-4Z" fill="currentColor" />
-                  </svg>
-                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li>
+                    <a class="dropdown-item" href="/settings.php">
+                      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" class="me-2">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.094.319a1.464 1.464 0 0 1-2.105.872l-.286-.166c-1.27-.736-2.67.665-1.934 1.934l.165.286a1.464 1.464 0 0 1-.872 2.105l-.319.094c-1.4.413-1.4 2.397 0 2.81l.319.094a1.464 1.464 0 0 1 .872 2.105l-.166.286c-.736 1.27.665 2.67 1.934 1.934l.286-.165a1.464 1.464 0 0 1 2.105.872l.094.319c.413 1.4 2.397 1.4 2.81 0l.094-.319a1.464 1.464 0 0 1 2.105-.872l.286.166c1.27.736 2.67-.665 1.934-1.934l-.165-.286a1.464 1.464 0 0 1 .872-2.105l.319-.094c1.4-.413 1.4-2.397 0-2.81l-.319-.094a1.464 1.464 0 0 1-.872-2.105l.166-.286c.736-1.27-.665-2.67-1.934-1.934l-.286.165a1.464 1.464 0 0 1-2.105-.872l-.094-.319ZM8 10.5A2.5 2.5 0 1 1 8 5.5a2.5 2.5 0 0 1 0 5Z" fill="currentColor" />
+                      </svg>
+                      Settings
+                    </a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/logout.php">
+                      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" class="me-2">
+                        <path d="M10.146 11.854a.5.5 0 0 0 .708 0l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 1 0-.708.708L12.793 7.5H6.5a.5.5 0 0 0 0 1h6.293l-2.647 2.646a.5.5 0 0 0 0 .708Z" fill="currentColor" />
+                        <path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 0 0-1h-4Z" fill="currentColor" />
+                      </svg>
+                      Logout
+                    </a>
+                  </li>
+                </ul>
               </li>
             <?php else: ?>
-              <li class="nav-item">
-                <a
-                  class="nav-link nav-icon-link<?= $currentPath === '/login.php' ? ' active' : '' ?>"
-                  href="/login.php"
-                  <?= $currentPath === '/login.php' ? 'aria-current="page"' : '' ?>
-                  aria-label="Login"
-                  title="Login">
-                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-                    <path d="M10.146 11.854a.5.5 0 0 0 .708 0l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 1 0-.708.708L12.793 7.5H6.5a.5.5 0 0 0 0 1h6.293l-2.647 2.646a.5.5 0 0 0 0 .708Z" fill="currentColor" />
-                    <path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 0 0-1h-4Z" fill="currentColor" />
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="guestDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Account menu">
+                  <svg viewBox="0 0 16 16" width="20" height="20" aria-hidden="true" focusable="false">
+                    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" fill="currentColor" />
+                    <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" fill="currentColor" />
                   </svg>
+                  <span class="small">Account</span>
                 </a>
-              </li>
-              <li class="nav-item">
-                <a
-                  class="nav-link nav-icon-link<?= $currentPath === '/register.php' ? ' active' : '' ?>"
-                  href="/register.php"
-                  <?= $currentPath === '/register.php' ? 'aria-current="page"' : '' ?>
-                  aria-label="Register"
-                  title="Register">
-                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
-                    <path d="M8 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm-3.5 2.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0Zm-1 8a4.5 4.5 0 0 1 9 0 .5.5 0 0 1-1 0 3.5 3.5 0 0 0-7 0 .5.5 0 0 1-1 0Zm9-8a.5.5 0 0 1 .5-.5h1v-1a.5.5 0 0 1 1 0v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1-.5-.5Z" fill="currentColor" />
-                  </svg>
-                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="guestDropdown">
+                  <li>
+                    <a class="dropdown-item" href="/login.php">
+                      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" class="me-2">
+                        <path d="M10.146 11.854a.5.5 0 0 0 .708 0l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 1 0-.708.708L12.793 7.5H6.5a.5.5 0 0 0 0 1h6.293l-2.647 2.646a.5.5 0 0 0 0 .708Z" fill="currentColor" />
+                        <path d="M3.5 2A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14h4a.5.5 0 0 0 0-1h-4a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 0 0-1h-4Z" fill="currentColor" />
+                      </svg>
+                      Login
+                    </a>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="/register.php">
+                      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false" class="me-2">
+                        <path d="M8 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm-3.5 2.5a3.5 3.5 0 1 0 7 0 3.5 3.5 0 0 0-7 0Zm-1 8a4.5 4.5 0 0 1 9 0 .5.5 0 0 1-1 0 3.5 3.5 0 0 0-7 0 .5.5 0 0 1-1 0Zm9-8a.5.5 0 0 1 .5-.5h1v-1a.5.5 0 0 1 1 0v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1-.5-.5Z" fill="currentColor" />
+                      </svg>
+                      Register
+                    </a>
+                  </li>
+                </ul>
               </li>
             <?php endif; ?>
           </ul>

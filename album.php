@@ -247,8 +247,8 @@ require_once __DIR__ . '/templates/header.php';
         const tileImg = trigger.querySelector('img');
         const tileWidth = tileImg ? tileImg.clientWidth : 240;
         const tileHeight = tileImg ? tileImg.clientHeight : 180;
-        const desiredWidth = Math.max(260, tileWidth * 2);
-        const desiredHeight = Math.max(220, tileHeight * 2);
+        const desiredWidth = Math.max(260, tileWidth * 4);
+        const desiredHeight = Math.max(220, tileHeight * 4);
         const maxWidth = Math.floor(window.innerWidth * 0.92);
         const maxHeight = Math.floor(window.innerHeight * 0.86);
 

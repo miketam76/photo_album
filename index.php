@@ -7,6 +7,7 @@
             <a class="btn btn-primary" href="/albums.php">View Albums</a>
         <?php else: ?>
             <a class="btn btn-primary" href="/login.php">Login to Start</a>
+            <a class="btn btn-secondary" href="/register.php">Create New Account</a>
         <?php endif; ?>
     </div>
 </section>

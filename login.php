@@ -35,6 +35,7 @@ function renderLoginForm(string $csrf, array $fieldErrors = [], ?string $formErr
                         <?php endif; ?>
                     </div>
                     <button class="btn btn-primary">Login</button>
+                    <p class="mt-3 text-muted">Don't have an account? <a href="/register.php">Create new account</a></p>
                 </form>
             </div>
         </div>
@@ -73,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $pdo = DB::getConnection();
-    $stmt = $pdo->prepare('SELECT id, uuid, password_hash, role, theme FROM users WHERE email = ?');
+    $stmt = $pdo->prepare('SELECT id, uuid, password_hash, role, theme, first_name, last_name FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row || !Auth::verifyPassword($password, $row['password_hash'])) {
@@ -87,6 +88,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'email' => $email,
         'role' => $row['role'],
         'theme' => $row['theme'] ?? 'terracotta',
+        'first_name' => $row['first_name'] ?? '',
+        'last_name' => $row['last_name'] ?? '',
     ];
     header('Location: /albums.php');
     exit;
