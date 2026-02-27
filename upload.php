@@ -9,6 +9,7 @@ require_once __DIR__ . '/src/Thumbnailer.php';
 use App\Auth;
 use App\DB;
 use function App\uuid;
+use function App\validateUserText;
 use App\Thumbnailer;
 
 Auth::startSession();
@@ -59,7 +60,7 @@ function renderUploadError(string $message, int $status = 400, string $albumUuid
 }
 
 // allow optional album via query/post for redirect/back links
-$album_uuid = $_REQUEST['album'] ?? 'default';
+$album_uuid = (string)($_GET['album'] ?? 'default');
 $album_name = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -87,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $csrf = Auth::csrfToken();
-    $postedAlbumUuid = (string)($_REQUEST['album'] ?? 'default');
+    $postedAlbumUuid = (string)($_POST['album'] ?? 'default');
     $postedDescription = trim((string)($_POST['description'] ?? ''));
 
     if (!Auth::validateCsrf($_POST['csrf'] ?? null)) {
@@ -99,6 +100,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
         http_response_code(400);
         renderUploadForm($csrf, $postedAlbumUuid, null, ['photo' => 'No file was uploaded. Please choose an image and try again.'], null, $postedDescription);
+        exit;
+    }
+
+    $descriptionError = validateUserText($postedDescription, 500, 'Caption');
+    if ($descriptionError !== null) {
+        http_response_code(400);
+        renderUploadForm($csrf, $postedAlbumUuid, null, ['description' => $descriptionError], null, $postedDescription);
         exit;
     }
 
@@ -129,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // determine user and album; use session if logged in
     $user_uuid = 'anon';
     $user_id = null;
-    $requested_album_uuid = $_REQUEST['album'] ?? null;
+    $requested_album_uuid = $_POST['album'] ?? null;
     if ($requested_album_uuid === 'default') {
         $requested_album_uuid = null;
     }

@@ -8,6 +8,7 @@ require_once __DIR__ . '/src/functions.php';
 use App\Auth;
 use App\DB;
 use function App\uuid;
+use function App\validateUserText;
 
 Auth::startSession();
 if (empty($_SESSION['user'])) {
@@ -93,6 +94,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (mb_strlen($name) > 120) {
     http_response_code(400);
     renderAlbumsPage($csrf, $albums, ['name' => 'Album name must be 120 characters or fewer.'], null, $name);
+    exit;
+  }
+
+  $nameError = validateUserText($name, 120, 'Album name');
+  if ($nameError !== null) {
+    http_response_code(400);
+    renderAlbumsPage($csrf, $albums, ['name' => $nameError], null, $name);
     exit;
   }
 

@@ -3,3 +3,7 @@
 /storage/uploads/
 /storage/cache/
 /vendor/
+migrations/mysql/000_create_app_user.sql
+migrations/mysql/001_init.sql
+migrations/mysql/002_add_dimensions.sql
+migrations/mysql/003_add_user_theme.sql

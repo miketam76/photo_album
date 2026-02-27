@@ -3,9 +3,11 @@
 declare(strict_types=1);
 require_once __DIR__ . '/src/auth.php';
 require_once __DIR__ . '/src/db.php';
+require_once __DIR__ . '/src/functions.php';
 
 use App\Auth;
 use App\DB;
+use function App\validateUserText;
 
 Auth::startSession();
 
@@ -63,13 +65,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $formError = 'Your session expired. Please try again.';
     } else {
         $newCaption = trim((string)($_POST['description'] ?? ''));
-        $newCaption = $newCaption === '' ? null : $newCaption;
+        $captionError = validateUserText($newCaption, 500, 'Caption');
+        if ($captionError !== null) {
+            http_response_code(400);
+            $formError = $captionError;
+            $photo['description'] = $newCaption;
+        } else {
+            $newCaption = $newCaption === '' ? null : $newCaption;
 
-        $update = $pdo->prepare('UPDATE photos SET description = ? WHERE id = ?');
-        $update->execute([$newCaption, (int)$photo['id']]);
+            $update = $pdo->prepare('UPDATE photos SET description = ? WHERE id = ?');
+            $update->execute([$newCaption, (int)$photo['id']]);
 
-        header('Location: /album.php?uuid=' . urlencode((string)$photo['album_uuid']));
-        exit;
+            header('Location: /album.php?uuid=' . urlencode((string)$photo['album_uuid']));
+            exit;
+        }
     }
 }
 
