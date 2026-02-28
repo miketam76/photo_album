@@ -21,8 +21,8 @@ function assertSameValue(string $label, mixed $actual, mixed $expected): void
     fwrite(STDOUT, "PASS: {$label}\n");
 }
 
-$caption500 = str_repeat('a', 500);
-$caption501 = str_repeat('a', 501);
+$caption5000 = str_repeat('a', 5000);
+$caption5001 = str_repeat('a', 5001);
 $album120 = str_repeat('b', 120);
 $album121 = str_repeat('b', 121);
 
@@ -30,35 +30,35 @@ $cases = [
     [
         'label' => 'Caption accepts empty string',
         'value' => '',
-        'max' => 500,
+        'max' => 5000,
         'field' => 'Caption',
         'expected' => null,
     ],
     [
         'label' => 'Caption accepts punctuation and whitespace',
         'value' => "Summer trip! #1\nDay 2\t(Beach)",
-        'max' => 500,
+        'max' => 5000,
         'field' => 'Caption',
         'expected' => null,
     ],
     [
-        'label' => 'Caption allows exactly 500 chars',
-        'value' => $caption500,
-        'max' => 500,
+        'label' => 'Caption allows exactly 5000 chars',
+        'value' => $caption5000,
+        'max' => 5000,
         'field' => 'Caption',
         'expected' => null,
     ],
     [
-        'label' => 'Caption rejects over 500 chars',
-        'value' => $caption501,
-        'max' => 500,
+        'label' => 'Caption rejects over 5000 chars',
+        'value' => $caption5001,
+        'max' => 5000,
         'field' => 'Caption',
-        'expected' => 'Caption must be 500 characters or fewer.',
+        'expected' => 'Caption must be 5000 characters or fewer.',
     ],
     [
         'label' => 'Caption rejects unsupported control chars',
         'value' => "hello" . chr(0),
-        'max' => 500,
+        'max' => 5000,
         'field' => 'Caption',
         'expected' => 'Caption contains unsupported characters.',
     ],

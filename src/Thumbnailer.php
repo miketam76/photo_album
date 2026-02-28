@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App;
@@ -55,8 +56,8 @@ final class Thumbnailer
                     if (!is_dir($outDir) && !mkdir($outDir, 0755, true) && !is_dir($outDir)) {
                         throw new \RuntimeException('Failed to create thumbnail subdirectory: ' . $outDir);
                     }
-                    $outPath = $outDir . DIRECTORY_SEPARATOR . pathinfo($srcPath, PATHINFO_FILENAME) . '.jpg';
-                    $thumb->setImageFormat('jpeg');
+                    $outPath = $outDir . DIRECTORY_SEPARATOR . pathinfo($srcPath, PATHINFO_FILENAME) . '.webp';
+                    $thumb->setImageFormat('webp');
                     $thumb->setImageCompressionQuality(85);
                     if (!$thumb->writeImage($outPath)) {
                         throw new \RuntimeException('Failed to write thumbnail: ' . $outPath);
@@ -87,9 +88,9 @@ final class Thumbnailer
             !function_exists('imagecreatefromstring') ||
             !function_exists('imagecreatetruecolor') ||
             !function_exists('imagecopyresampled') ||
-            !function_exists('imagejpeg')
+            !function_exists('imagewebp')
         ) {
-            throw new \RuntimeException('No image library available (Imagick or GD).');
+            throw new \RuntimeException('No image library available (Imagick or GD) or WebP support missing.');
         }
 
         $data = file_get_contents($srcPath);
@@ -167,8 +168,8 @@ final class Thumbnailer
                 throw new \RuntimeException('Failed to create thumbnail subdirectory: ' . $outDir);
             }
 
-            $outPath = $outDir . DIRECTORY_SEPARATOR . pathinfo($srcPath, PATHINFO_FILENAME) . '.jpg';
-            if (!imagejpeg($dst, $outPath, 85)) {
+            $outPath = $outDir . DIRECTORY_SEPARATOR . pathinfo($srcPath, PATHINFO_FILENAME) . '.webp';
+            if (!imagewebp($dst, $outPath, 85)) {
                 imagedestroy($dst);
                 imagedestroy($srcImg);
                 throw new \RuntimeException('Failed to write thumbnail: ' . $outPath);

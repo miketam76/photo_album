@@ -165,6 +165,13 @@ require_once __DIR__ . '/templates/header.php';
   <?php if (empty($photos)): ?>
     <p>No photos yet.</p>
   <?php else: ?>
+    <div class="d-flex justify-content-end mb-3">
+      <button id="startSlideshow" type="button" class="btn btn-outline-secondary btn-sm">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false" class="me-1" style="vertical-align:-1px">
+          <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z" fill="currentColor" />
+        </svg>Slideshow
+      </button>
+    </div>
     <div id="gallery" class="row g-3">
       <?php foreach ($photos as $p): ?>
         <div class="col-6 col-md-3">
@@ -176,6 +183,7 @@ require_once __DIR__ . '/templates/header.php';
               class="photo-tile-trigger"
               data-preview-src="/image.php?photo=<?= urlencode($p['uuid']) ?>&size=large"
               data-preview-alt="<?= htmlspecialchars((string)($p['original_name'] ?? 'Photo preview')) ?>"
+              data-description="<?= htmlspecialchars(trim((string)($p['description'] ?? ''))) ?>"
               data-width="<?= $w ?>"
               data-height="<?= $h ?>"
               aria-label="Open larger photo preview"
@@ -225,52 +233,135 @@ require_once __DIR__ . '/templates/header.php';
 </section>
 
 <dialog id="photoPreviewDialog" class="photo-preview-dialog" aria-label="Photo preview dialog">
+  <button class="slideshow-close" id="slideshowClose" aria-label="Close">&times;</button>
   <img id="photoPreviewImage" class="photo-preview-image" src="" alt="">
+  <div id="photoCaption" class="photo-caption"></div>
+  <div class="slideshow-controls">
+    <button class="slideshow-nav slideshow-prev" id="slideshowPrev" aria-label="Previous photo">&#8592;</button>
+    <button class="slideshow-play-btn" id="slideshowPlayPause" aria-label="Play slideshow">&#9654;</button>
+    <span class="slideshow-counter" id="slideshowCounter"></span>
+    <button class="slideshow-nav slideshow-next" id="slideshowNext" aria-label="Next photo">&#8594;</button>
+  </div>
 </dialog>
 
 <script>
   (function() {
     const dialog = document.getElementById('photoPreviewDialog');
-    const previewImage = document.getElementById('photoPreviewImage');
-    if (!dialog || !previewImage) {
-      return;
+    const previewImg = document.getElementById('photoPreviewImage');
+    const closeBtn = document.getElementById('slideshowClose');
+    const prevBtn = document.getElementById('slideshowPrev');
+    const nextBtn = document.getElementById('slideshowNext');
+    const playBtn = document.getElementById('slideshowPlayPause');
+    const counter = document.getElementById('slideshowCounter');
+    const startBtn = document.getElementById('startSlideshow');
+
+    if (!dialog || !previewImg) return;
+
+    // Build photo list from tile triggers
+    const photos = Array.from(document.querySelectorAll('.photo-tile-trigger')).map(t => ({
+      src: t.getAttribute('data-preview-src'),
+      alt: t.getAttribute('data-preview-alt') || 'Photo preview',
+      description: t.getAttribute('data-description') || '',
+    }));
+
+    let current = 0;
+    let playing = false;
+    let intervalId = null;
+    const INTERVAL = 4000;
+
+    function showPhoto(index) {
+      current = ((index % photos.length) + photos.length) % photos.length;
+      previewImg.src = photos[current].src;
+      previewImg.alt = photos[current].alt;
+      const captionEl = document.getElementById('photoCaption');
+      if (captionEl) {
+        captionEl.textContent = photos[current].description;
+        captionEl.style.display = photos[current].description ? 'block' : 'none';
+      }
+      counter.textContent = (current + 1) + ' / ' + photos.length;
+      const multi = photos.length > 1;
+      prevBtn.style.visibility = multi ? 'visible' : 'hidden';
+      nextBtn.style.visibility = multi ? 'visible' : 'hidden';
     }
 
-    const triggers = document.querySelectorAll('.photo-tile-trigger');
-    triggers.forEach((trigger) => {
+    function openAt(index) {
+      showPhoto(index);
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+    }
+
+    function stopSlideshow() {
+      clearInterval(intervalId);
+      intervalId = null;
+      playing = false;
+      playBtn.innerHTML = '&#9654;';
+      playBtn.setAttribute('aria-label', 'Play slideshow');
+    }
+
+    function startSlideshow() {
+      playing = true;
+      playBtn.innerHTML = '&#9646;&#9646;';
+      playBtn.setAttribute('aria-label', 'Pause slideshow');
+      intervalId = setInterval(() => showPhoto(current + 1), INTERVAL);
+    }
+
+    // Tile clicks — open at that index, not auto-playing
+    document.querySelectorAll('.photo-tile-trigger').forEach((trigger, i) => {
       trigger.addEventListener('click', () => {
-        const src = trigger.getAttribute('data-preview-src');
-        if (!src) {
-          return;
-        }
-
-        const tileImg = trigger.querySelector('img');
-        const tileWidth = tileImg ? tileImg.clientWidth : 240;
-        const tileHeight = tileImg ? tileImg.clientHeight : 180;
-        const desiredWidth = Math.max(260, tileWidth * 4);
-        const desiredHeight = Math.max(220, tileHeight * 4);
-        const maxWidth = Math.floor(window.innerWidth * 0.92);
-        const maxHeight = Math.floor(window.innerHeight * 0.86);
-
-        previewImage.src = src;
-        previewImage.alt = trigger.getAttribute('data-preview-alt') || 'Photo preview';
-        previewImage.style.maxWidth = Math.min(desiredWidth, maxWidth) + 'px';
-        previewImage.style.maxHeight = Math.min(desiredHeight, maxHeight) + 'px';
-
-        if (typeof dialog.showModal === 'function') {
-          dialog.showModal();
-        }
+        stopSlideshow();
+        openAt(i);
       });
     });
 
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) {
+    // Slideshow start button
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        stopSlideshow();
+        openAt(0);
+        startSlideshow();
+      });
+    }
+
+    closeBtn.addEventListener('click', () => {
+      stopSlideshow();
+      dialog.close();
+    });
+    prevBtn.addEventListener('click', () => {
+      stopSlideshow();
+      showPhoto(current - 1);
+    });
+    nextBtn.addEventListener('click', () => {
+      stopSlideshow();
+      showPhoto(current + 1);
+    });
+    playBtn.addEventListener('click', () => playing ? stopSlideshow() : startSlideshow());
+
+    // Close on backdrop click
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) {
+        stopSlideshow();
         dialog.close();
       }
     });
-
     dialog.addEventListener('close', () => {
-      previewImage.removeAttribute('src');
+      stopSlideshow();
+      previewImg.removeAttribute('src');
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (!dialog.open) return;
+      if (e.key === 'ArrowLeft') {
+        stopSlideshow();
+        showPhoto(current - 1);
+      }
+      if (e.key === 'ArrowRight') {
+        stopSlideshow();
+        showPhoto(current + 1);
+      }
+      if (e.key === ' ') {
+        e.preventDefault();
+        playing ? stopSlideshow() : startSlideshow();
+      }
     });
   })();
 </script>

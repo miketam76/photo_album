@@ -33,7 +33,9 @@ function renderUploadForm(string $csrf, string $albumUuid = 'default', ?string $
                 <?php endif; ?>
             </div>
             <div class="col-12">
-                <input class="form-control<?= isset($fieldErrors['description']) ? ' is-invalid' : '' ?>" name="description" placeholder="Caption (optional)" value="<?= htmlspecialchars($description) ?>">
+                <label class="form-label" for="description">Caption (optional)</label>
+                <textarea id="description" class="form-control<?= isset($fieldErrors['description']) ? ' is-invalid' : '' ?>" name="description" rows="5" maxlength="5000" placeholder="Tell the story behind your photo..."><?= htmlspecialchars($description) ?></textarea>
+                <div id="captionCounter" style="margin-top: 0.5rem; font-size: 1rem; font-weight: 600; color: #2c5530;">0 / 5,000 characters (~0 words)</div>
                 <?php if (isset($fieldErrors['description'])): ?>
                     <div class="invalid-feedback d-block"><?= htmlspecialchars($fieldErrors['description']) ?></div>
                 <?php endif; ?>
@@ -44,6 +46,20 @@ function renderUploadForm(string $csrf, string $albumUuid = 'default', ?string $
             </div>
         </form>
     </section>
+    <script>
+        const descTextarea = document.getElementById('description');
+        const counter = document.getElementById('captionCounter');
+
+        function updateCounter() {
+            const len = descTextarea.value.length;
+            const words = descTextarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+            counter.textContent = len + ' / 5,000 characters (~' + words + ' word' + (words === 1 ? '' : 's') + ')';
+        }
+        if (descTextarea && counter) {
+            descTextarea.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    </script>
 <?php
     require __DIR__ . '/templates/footer.php';
 }
@@ -97,13 +113,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    if (empty($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
+    if (empty($_FILES['photo'])) {
+        // $_FILES is empty when the entire POST body exceeds post_max_size
         http_response_code(400);
-        renderUploadForm($csrf, $postedAlbumUuid, null, ['photo' => 'No file was uploaded. Please choose an image and try again.'], null, $postedDescription);
+        renderUploadForm($csrf, $postedAlbumUuid, null, ['photo' => 'No file was received. The upload may have exceeded the server size limit — try a smaller image.'], null, $postedDescription);
         exit;
     }
 
-    $descriptionError = validateUserText($postedDescription, 500, 'Caption');
+    $uploadErrCode = (int)$_FILES['photo']['error'];
+    if ($uploadErrCode !== UPLOAD_ERR_OK) {
+        $uploadErrMessages = [
+            UPLOAD_ERR_INI_SIZE   => 'The file is too large for the server configuration (upload_max_filesize). Please upload a smaller image or ask your administrator to raise the limit.',
+            UPLOAD_ERR_FORM_SIZE  => 'The file exceeds the maximum allowed size.',
+            UPLOAD_ERR_PARTIAL    => 'The file was only partially uploaded. Please try again.',
+            UPLOAD_ERR_NO_FILE    => 'No file was selected. Please choose an image.',
+            UPLOAD_ERR_NO_TMP_DIR => 'Server error: no temporary directory is available for uploads.',
+            UPLOAD_ERR_CANT_WRITE => 'Server error: could not write the uploaded file to disk.',
+            UPLOAD_ERR_EXTENSION  => 'The upload was blocked by a PHP extension.',
+        ];
+        $uploadErrMsg = $uploadErrMessages[$uploadErrCode] ?? 'Upload failed (PHP error code ' . $uploadErrCode . ').';
+        http_response_code(400);
+        renderUploadForm($csrf, $postedAlbumUuid, null, ['photo' => $uploadErrMsg], null, $postedDescription);
+        exit;
+    }
+
+    $descriptionError = validateUserText($postedDescription, 5000, 'Caption');
     if ($descriptionError !== null) {
         http_response_code(400);
         renderUploadForm($csrf, $postedAlbumUuid, null, ['description' => $descriptionError], null, $postedDescription);

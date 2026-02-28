@@ -42,7 +42,7 @@ if ($user && isset($user['theme']) && in_array((string)$user['theme'], $allowedT
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 
-<body class="bg-dark text-light" data-theme="<?= htmlspecialchars($activeTheme) ?>">
+<body data-theme="<?= htmlspecialchars($activeTheme) ?>">
   <div class="container py-4">
     <nav class="navbar navbar-expand-lg navbar-light mb-3">
       <div class="container-fluid">

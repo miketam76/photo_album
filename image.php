@@ -52,7 +52,7 @@ if ($size === 'original') {
     $file = $row['file_path'];
 } else {
     $base = basename($row['file_path']);
-    $file = __DIR__ . '/storage/cache/' . $row['user_uuid'] . '/' . $row['album_uuid'] . '/' . $size . '/' . $base . '.jpg';
+    $file = __DIR__ . '/storage/cache/' . $row['user_uuid'] . '/' . $row['album_uuid'] . '/' . $size . '/' . $base . '.webp';
     if (!is_file($file)) {
         $file = $row['file_path'];
     }

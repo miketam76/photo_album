@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $formError = 'Your session expired. Please try again.';
     } else {
         $newCaption = trim((string)($_POST['description'] ?? ''));
-        $captionError = validateUserText($newCaption, 500, 'Caption');
+        $captionError = validateUserText($newCaption, 5000, 'Caption');
         if ($captionError !== null) {
             http_response_code(400);
             $formError = $captionError;
@@ -97,7 +97,8 @@ require_once __DIR__ . '/templates/header.php';
 
         <div class="col-12">
             <label class="form-label" for="description">Caption</label>
-            <input id="description" class="form-control" name="description" value="<?= htmlspecialchars((string)($photo['description'] ?? '')) ?>" placeholder="Caption">
+            <textarea id="description" class="form-control" name="description" rows="8" maxlength="5000" placeholder="Tell the story behind your photo..."><?= htmlspecialchars((string)($photo['description'] ?? '')) ?></textarea>
+            <div id="captionCounter" style="margin-top: 0.5rem; font-size: 1rem; font-weight: 600; color: #2c5530;">0 / 5,000 characters (~0 words)</div>
         </div>
 
         <div class="col-12 d-flex gap-2">
@@ -114,4 +115,18 @@ require_once __DIR__ . '/templates/header.php';
         </div>
     </form>
 </section>
+<script>
+    const descTextarea = document.getElementById('description');
+    const counter = document.getElementById('captionCounter');
+
+    function updateCounter() {
+        const len = descTextarea.value.length;
+        const words = descTextarea.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+        counter.textContent = len + ' / 5,000 characters (~' + words + ' word' + (words === 1 ? '' : 's') + ')';
+    }
+    if (descTextarea && counter) {
+        descTextarea.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+</script>
 <?php require_once __DIR__ . '/templates/footer.php';
