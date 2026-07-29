@@ -136,6 +136,8 @@ $stmt->execute([(int)$album['id']]);
 $photos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 require_once __DIR__ . '/templates/header.php';
+
+use function App\generate_signed_url;
 ?>
 <section class="page-panel p-4 p-md-5 mb-3">
   <h2><?= htmlspecialchars($album['name']) ?></h2>
@@ -174,21 +176,31 @@ require_once __DIR__ . '/templates/header.php';
     </div>
     <div id="gallery" class="row g-3">
       <?php foreach ($photos as $p): ?>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-lg-3 col-xl-2">
           <div class="card photo-card bg-dark text-light shadow-sm">
             <?php $w = (int)($p['width'] ?? 0);
             $h = (int)($p['height'] ?? 0); ?>
+            <?php
+            // For public viewers use short-lived signed URLs; owners/admins use session-authenticated routes
+            if (empty($isAlbumOwner)) {
+              $previewSrc = generate_signed_url((string)$p['uuid'], 'large', 300);
+              $thumbSrc = generate_signed_url((string)$p['uuid'], 'thumb', 300);
+            } else {
+              $previewSrc = '/image.php?photo=' . urlencode((string)$p['uuid']) . '&size=large';
+              $thumbSrc = '/image.php?photo=' . urlencode((string)$p['uuid']) . '&size=thumb';
+            }
+            ?>
             <button
               type="button"
               class="photo-tile-trigger"
-              data-preview-src="/image.php?photo=<?= urlencode($p['uuid']) ?>&size=large"
+              data-preview-src="<?= htmlspecialchars($previewSrc) ?>"
               data-preview-alt="<?= htmlspecialchars((string)($p['original_name'] ?? 'Photo preview')) ?>"
               data-description="<?= htmlspecialchars(trim((string)($p['description'] ?? ''))) ?>"
               data-width="<?= $w ?>"
               data-height="<?= $h ?>"
               aria-label="Open larger photo preview"
               title="Open larger photo preview">
-              <img src="/image.php?photo=<?= urlencode($p['uuid']) ?>&size=thumb" class="card-img-top" alt="<?= htmlspecialchars($p['original_name'] ?? '') ?>">
+              <img src="<?= htmlspecialchars($thumbSrc) ?>" class="card-img-top" alt="<?= htmlspecialchars($p['original_name'] ?? '') ?>">
             </button>
             <div class="card-body py-2 px-2">
               <p class="small mb-1"><strong>Caption:</strong> <?= htmlspecialchars(trim((string)($p['description'] ?? '')) !== '' ? (string)$p['description'] : 'No caption') ?></p>

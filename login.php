@@ -13,9 +13,9 @@ function renderLoginForm(string $csrf, array $fieldErrors = [], ?string $formErr
 {
     require __DIR__ . '/templates/header.php';
 ?>
-    <section class="page-panel p-4 p-md-5 mb-3">
+    <section class="page-panel auth-panel p-4 p-md-5 mb-3">
         <div class="row justify-content-center">
-            <div class="col-12 col-md-6">
+            <div class="col-12 col-md-8 col-lg-6">
                 <h2>Login</h2>
                 <?php if ($formError): ?>
                     <div class="alert alert-danger"><?= htmlspecialchars($formError) ?></div>

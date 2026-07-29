@@ -35,7 +35,7 @@ function renderUploadForm(string $csrf, string $albumUuid = 'default', ?string $
             <div class="col-12">
                 <label class="form-label" for="description">Caption (optional)</label>
                 <textarea id="description" class="form-control<?= isset($fieldErrors['description']) ? ' is-invalid' : '' ?>" name="description" rows="5" maxlength="5000" placeholder="Tell the story behind your photo..."><?= htmlspecialchars($description) ?></textarea>
-                <div id="captionCounter" style="margin-top: 0.5rem; font-size: 1rem; font-weight: 600; color: #2c5530;">0 / 5,000 characters (~0 words)</div>
+                <div id="captionCounter">0 / 5,000 characters (~0 words)</div>
                 <?php if (isset($fieldErrors['description'])): ?>
                     <div class="invalid-feedback d-block"><?= htmlspecialchars($fieldErrors['description']) ?></div>
                 <?php endif; ?>
@@ -267,7 +267,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     $u = uuid();
-    $storageDir = __DIR__ . '/storage/uploads/' . $user_uuid . '/' . $album_uuid;
+    // Store originals in private storage (not directly web-accessible)
+    $storageDir = __DIR__ . '/storage/private/uploads/' . $user_uuid . '/' . $album_uuid;
     if (!is_dir($storageDir)) mkdir($storageDir, 0755, true);
     $dest = $storageDir . '/' . $u;
     if (!move_uploaded_file($tmp, $dest)) {
@@ -275,13 +276,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // generate thumbnails
+    // generate thumbnails into private cache
     $thumbs = [];
     try {
-        $thumbs = Thumbnailer::generate($dest, __DIR__ . '/storage/cache/' . $user_uuid . '/' . $album_uuid);
+        $thumbs = Thumbnailer::generate($dest, __DIR__ . '/storage/private/cache/' . $user_uuid . '/' . $album_uuid);
     } catch (Exception $e) {
         // continue; thumbnails are optional
     }
+
+    // enqueue a background job file for thumbnail generation (worker processes storage/queue)
+    $queueDir = __DIR__ . '/storage/queue';
+    if (!is_dir($queueDir)) mkdir($queueDir, 0755, true);
+    $job = [
+        'uuid' => $u,
+        'src' => $dest,
+        'cache' => __DIR__ . '/storage/private/cache/' . $user_uuid . '/' . $album_uuid,
+    ];
+    @file_put_contents($queueDir . '/' . $u . '.json', json_encode($job));
 
     // persist minimal metadata to DB (include width/height and optional description)
     $description = trim((string)($_POST['description'] ?? '')) ?: null;

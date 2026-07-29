@@ -1,6 +1,6 @@
 :root {
-  --font-ui: "Source Sans 3", "Trebuchet MS", "Segoe UI", sans-serif;
-  --font-display: "Fraunces", "Georgia", serif;
+  --font-ui: "Inter", "Source Sans 3", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-display: "Playfair Display", "Fraunces", "Georgia", serif;
   --bg: #dfcfc3;
   --surface: #f1e4da;
   --surface-soft: #e8d7ca;
@@ -349,6 +349,18 @@ body {
   color: var(--text);
 }
 
+/* Use display font for large headings, and UI font for captions */
+.landing-hero h1,
+.navbar-brand {
+  font-family: var(--font-display);
+}
+
+.photo-caption,
+.photo-card .card-title,
+.photo-card .card-subtitle {
+  font-family: var(--font-ui);
+}
+
 .landing-hero .lead {
   color: var(--text-muted);
   max-width: 64ch;
@@ -575,6 +587,93 @@ small {
   display: block;
 }
 
+/* Desktop scaling tweaks */
+@media (min-width: 992px) {
+  .photo-card img {
+    height: 260px;
+    /* larger preview tiles on desktop */
+  }
+
+  .photo-preview-image {
+    max-width: min(94vw, 1300px);
+    max-height: 84vh;
+  }
+
+  .photo-caption {
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+
+  .slideshow-close {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.4rem;
+  }
+
+  .slideshow-nav {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+  }
+
+  .slideshow-play-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 0.95rem;
+  }
+
+  .slideshow-counter {
+    font-size: 1rem;
+  }
+
+  .navbar-brand {
+    font-size: 1.35rem;
+  }
+
+  .nav-link {
+    padding: 0.5rem 1rem !important;
+    font-size: 1.05rem;
+  }
+
+  .nav-icon-link {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .nav-icon-link svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .btn-icon-only {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .btn-icon-only svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  .btn-sm.btn-icon-only {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 1rem;
+    padding: 0.55rem 0.75rem;
+  }
+
+  #captionCounter {
+    margin-top: 0.5rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--primary-strong);
+  }
+}
+
 .photo-preview-dialog {
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -761,5 +860,107 @@ a:focus-visible {
     border-radius: 0;
     border-left: 0;
     border-right: 0;
+  }
+}
+
+/* Desktop form, heading and list sizing tweaks */
+@media (min-width: 992px) {
+  .page-panel {
+    padding: 3rem 3.5rem;
+  }
+
+  .page-panel h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 1.05rem;
+    padding: 0.6rem 0.9rem;
+  }
+
+  .btn {
+    font-size: 1rem;
+    padding: 0.55rem 0.85rem;
+  }
+
+  /* Make album list entries more prominent on desktop */
+  .list-group-item {
+    padding: 0.85rem 1.1rem;
+    font-size: 1.05rem;
+  }
+
+  /* Slightly increase gallery header spacing */
+  .landing-hero h1 {
+    font-size: 2.25rem;
+    line-height: 1.05;
+  }
+}
+
+/* Center authentication pages vertically on larger viewports */
+@media (min-width: 768px) {
+  .auth-panel {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Ensure the inner row expands to full width for proper centering */
+  .auth-panel .row.justify-content-center {
+    width: 100%;
+  }
+
+  /* Slightly increase spacing for auth headings and forms */
+  .auth-panel h2 {
+    margin-bottom: 1.25rem;
+    font-size: 1.75rem;
+  }
+
+  .auth-panel .form-control,
+  .auth-panel .form-select {
+    font-size: 1.05rem;
+    padding: 0.6rem 0.9rem;
+  }
+}
+
+/* Center landing hero content and improve proportions on larger viewports */
+@media (min-width: 768px) {
+  .landing-hero {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .landing-hero h1 {
+    font-size: 2.5rem;
+    line-height: 1.02;
+    margin-bottom: 0.5rem;
+  }
+
+  .landing-hero .lead {
+    font-size: 1.15rem;
+    max-width: 72ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .landing-hero .d-flex {
+    margin-top: 0.75rem;
+    justify-content: center;
+  }
+
+  .landing-hero .btn {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
   }
 }

@@ -98,7 +98,7 @@ require_once __DIR__ . '/templates/header.php';
         <div class="col-12">
             <label class="form-label" for="description">Caption</label>
             <textarea id="description" class="form-control" name="description" rows="8" maxlength="5000" placeholder="Tell the story behind your photo..."><?= htmlspecialchars((string)($photo['description'] ?? '')) ?></textarea>
-            <div id="captionCounter" style="margin-top: 0.5rem; font-size: 1rem; font-weight: 600; color: #2c5530;">0 / 5,000 characters (~0 words)</div>
+            <div id="captionCounter">0 / 5,000 characters (~0 words)</div>
         </div>
 
         <div class="col-12 d-flex gap-2">
