@@ -62,14 +62,53 @@ if (!$allowed) {
 }
 
 // determine file path
+// Primary: respect stored path and private cache. If the stored path is missing (moved installs),
+// perform a non-destructive fallback search under known storage locations.
+$stored = (string)($row['file_path'] ?? '');
 if ($size === 'original') {
-    $file = $row['file_path'];
+    $file = $stored;
 } else {
-    $base = basename($row['file_path']);
+    $base = basename($stored);
     $file = __DIR__ . '/storage/private/cache/' . $row['user_uuid'] . '/' . $row['album_uuid'] . '/' . $size . '/' . $base . '.webp';
     if (!is_file($file)) {
         // fallback to original if cached size is missing
-        $file = $row['file_path'];
+        $file = $stored;
+    }
+}
+
+// If the resolved file doesn't exist on disk, try non-destructive fallbacks:
+if (!is_file($file)) {
+    $base = basename($stored);
+    // 1) check private uploads in this workspace
+    $cand = __DIR__ . '/storage/private/uploads/' . $row['user_uuid'] . '/' . $row['album_uuid'] . '/' . $base;
+    if (is_file($cand)) {
+        $file = $cand;
+    }
+}
+
+if (!is_file($file)) {
+    // 2) check public uploads directory in this workspace
+    $cand2 = __DIR__ . '/storage/uploads/' . $row['user_uuid'] . '/' . $row['album_uuid'] . '/' . $base;
+    if (is_file($cand2)) {
+        $file = $cand2;
+    }
+}
+
+if (!is_file($file)) {
+    // 3) last resort: scan storage/uploads tree for matching basename (non-destructive but potentially expensive)
+    $found = null;
+    $searchRoot = __DIR__ . '/storage/uploads';
+    if (is_dir($searchRoot)) {
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($searchRoot, \FilesystemIterator::SKIP_DOTS));
+        foreach ($it as $f) {
+            if ($f->isFile() && $f->getBasename() === $base) {
+                $found = $f->getPathname();
+                break;
+            }
+        }
+    }
+    if ($found !== null && is_file($found)) {
+        $file = $found;
     }
 }
 
